@@ -2,21 +2,21 @@ const socket = io();
 const myvideo = document.querySelector("#vd1");
 const roomid = params.get("room");
 let username;
-const chatRoom = document.querySelector('.chat-cont');
-const sendButton = document.querySelector('.chat-send');
-const messageField = document.querySelector('.chat-input');
+const chatRoom = document.querySelector('#chat-cont');
+const sendButton = document.querySelector('#chat-send');
+const messageField = document.querySelector('#chat-input');
 const videoContainer = document.querySelector('#vcont');
 const overlayContainer = document.querySelector('#overlay')
-const continueButt = document.querySelector('.continue-name');
+const continueButt = document.querySelector('#continue-name');
 const nameField = document.querySelector('#name-field');
-const videoButt = document.querySelector('.novideo');
-const audioButt = document.querySelector('.audio');
-const cutCall = document.querySelector('.cutcall');
-const screenShareButt = document.querySelector('.screenshare');
-const whiteboardButt = document.querySelector('.board-icon')
+const videoButt = document.querySelector('#novideo');
+const audioButt = document.querySelector('#audio');
+const cutCall = document.querySelector('#cutcall');
+const screenShareButt = document.querySelector('#screenshare');
+const whiteboardButt = document.querySelector('#board-icon')
 
 //whiteboard js start
-const whiteboardCont = document.querySelector('.whiteboard-cont');
+const whiteboardCont = document.querySelector('#whiteboard-cont');
 const canvas = document.querySelector("#whiteboard");
 const ctx = canvas.getContext('2d');
 
@@ -51,7 +51,7 @@ socket.on('getCanvas', url => {
         ctx.drawImage(img, 0, 0);
     }
 
-    console.log('got canvas', url)
+    // console.log('got canvas', url)
 })
 
 function setColor(newcolor) {
@@ -154,7 +154,7 @@ myvideooff.style.visibility = 'hidden';
 
 const configuration = { iceServers: [{ urls: "stun:stun.stunprotocol.org" }] }
 
-const mediaConstraints = { video: true, audio: true };
+const mediaConstraints = { video: false, audio: true };
 
 let connections = {};
 let cName = {};
@@ -164,11 +164,11 @@ let videoTrackSent = {};
 let mystream, myscreenshare;
 
 
-document.querySelector('.roomcode').innerHTML = `${roomid}`
+document.querySelector('#roomcode').innerHTML = `${roomid}`
 
 function CopyClassText() {
 
-    var textToCopy = document.querySelector('.roomcode');
+    var textToCopy = document.querySelector('#roomcode');
     var currentRange;
     if (document.getSelection().rangeCount > 0) {
         currentRange = document.getSelection().getRangeAt(0);
@@ -189,9 +189,9 @@ function CopyClassText() {
         window.getSelection().addRange(currentRange);
     }
 
-    document.querySelector(".copycode-button").textContent = "Copied!"
+    document.querySelector("#copycode-button").textContent = "Copied!"
     setTimeout(()=>{
-        document.querySelector(".copycode-button").textContent = "Copy Code";
+        document.querySelector("#copycode-button").textContent = "Copy Code";
     }, 5000);
 }
 
@@ -199,11 +199,16 @@ function CopyClassText() {
 continueButt.addEventListener('click', () => {
     if (nameField.value == '') return;
     username = nameField.value;
+    
     overlayContainer.style.visibility = 'hidden';
     document.querySelector("#myname").innerHTML = `${username} (You)`;
     socket.emit("join room", roomid, username);
-
 })
+
+username = 'Tech Innovation '
+overlayContainer.style.visibility = 'hidden';
+document.querySelector("#myname").innerHTML = `${username} (You)`;
+socket.emit("join room", roomid, username);
 
 nameField.addEventListener("keyup", function (event) {
     if (event.keyCode === 13) {
@@ -402,8 +407,6 @@ function handleVideoAnswer(answer, sid) {
     connections[sid].setRemoteDescription(ans);
 }
 
-//Thanks to (https://github.com/miroslavpejic85) for ScreenShare Code
-
 screenShareButt.addEventListener('click', () => {
     screenShareToggle();
 });
@@ -589,17 +592,41 @@ messageField.addEventListener("keyup", function (event) {
     }
 });
 
+const showChats = document.querySelector('.chats');
+const showAttendees = document.querySelector('.attendies');
+showChats.style.color = 'red'
+
+showAttendees.addEventListener('click', () => {
+    showAttendees.style.color = 'red'
+    showChats.style.color = 'white'
+
+    document.querySelector('#chat-cont').style.display = 'none';
+    document.querySelector('#attendee-list').style.display = 'block';
+    
+})
+
+showChats.addEventListener('click', () => {
+    showAttendees.style.color = 'white'
+    showChats.style.color = 'red'
+
+    document.querySelector('#chat-cont').style.display = 'flex';
+    document.querySelector('#chat-cont').style.flexDirection  = 'column';
+    document.querySelector('#attendee-list').style.display = 'none';
+    
+})
+
 socket.on('message', (msg, sendername, time) => {
+    chatRoom.innerHTML += 
+    `<div class="message">
+        <div class="info">
+            <div class="username">${sendername}</div>
+            <div class="time">${time}</div>
+        </div>
+        <div class="content">
+            ${msg}
+        </div>
+    </div>`
     chatRoom.scrollTop = chatRoom.scrollHeight;
-    chatRoom.innerHTML += `<div class="message">
-    <div class="info">
-        <div class="username">${sendername}</div>
-        <div class="time">${time}</div>
-    </div>
-    <div class="content">
-        ${msg}
-    </div>
-</div>`
 });
 
 videoButt.addEventListener('click', () => {
@@ -709,13 +736,17 @@ socket.on('action', (msg, sid) => {
     }
 })
 
+
+
 whiteboardButt.addEventListener('click', () => {
     if (boardVisisble) {
         whiteboardCont.style.visibility = 'hidden';
+        document.querySelector('#vcont').style.visibility = 'visible';
         boardVisisble = false;
     }
     else {
         whiteboardCont.style.visibility = 'visible';
+        document.querySelector('#vcont').style.visibility = 'hidden';
         boardVisisble = true;
     }
 })
@@ -723,3 +754,32 @@ whiteboardButt.addEventListener('click', () => {
 cutCall.addEventListener('click', () => {
     location.href = '/';
 })
+
+const BarToggle = document.querySelector('.fa-bars')
+const closeChat = document.querySelector('.fa-times')
+
+BarToggle.addEventListener('click', () => {
+    document.querySelector('.left-cont').style.display = 'none';
+    document.querySelector('.right-cont').style.display = 'block';
+})
+closeChat.addEventListener('click', () => {
+
+    document.querySelector('.left-cont').style.display = 'block';
+    document.querySelector('.right-cont').style.display = 'none';
+})
+
+function applyStyles(e) {
+    if (e.matches) {
+        document.querySelector('.left-cont').style.display = 'block';
+        document.querySelector('.right-cont').style.display = 'block';
+    } else {
+        document.querySelector('.left-cont').style.display = 'block';
+        document.querySelector('.right-cont').style.display = 'none';
+    }
+}
+
+const mediaQuery = window.matchMedia('(min-width: 768px)');
+
+applyStyles(mediaQuery);
+
+mediaQuery.addListener(applyStyles);

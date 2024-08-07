@@ -109,8 +109,6 @@ io.on('connect', socket => {
         console.log(rooms[socketroom[socket.id]]);
         delete socketroom[socket.id];
         console.log('--------------------');
-
-        //toDo: push socket.id out of rooms
     });
 })
 
